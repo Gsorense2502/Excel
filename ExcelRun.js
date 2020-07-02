@@ -26,7 +26,7 @@ newworksheet.columns = [
  {header: 'Name', key: 'name', width: 32}, 
  {header: 'D.O.B.', key: 'dob', width: 15,}
 ];
-await newworksheet.addRow({id: 3, name: 'Burke', dob: new Date(2000, 1, 1)});
+await newworksheet.addRow({id: 3, name: 'Kevin', dob: new Date(2000, 1, 1)});
 
 await newWorkbook.xlsx.writeFile('Output/final.xlsx');
 

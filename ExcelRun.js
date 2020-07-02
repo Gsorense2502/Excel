@@ -20,7 +20,7 @@ await workbook.xlsx.writeFile('export.xlsx');
 const newWorkbook = new Excel.Workbook();
 await newWorkbook.xlsx.readFile('export.xlsx');
 
-const newworksheet = newWorkbook.getWorksheet('My Sheet');
+const newworksheet = newWorkbook.getWorksheet('George');
 newworksheet.columns = [
  {header: 'Id', key: 'id', width: 10},
  {header: 'Name', key: 'name', width: 32}, 

@@ -28,7 +28,7 @@ newworksheet.columns = [
 ];
 await newworksheet.addRow({id: 3, name: 'New Guy', dob: new Date(2000, 1, 1)});
 
-await newWorkbook.xlsx.writeFile('Output/export2.xlsx');
+await newWorkbook.xlsx.writeFile('Output/final.xlsx');
 
 console.log("File is written");
 

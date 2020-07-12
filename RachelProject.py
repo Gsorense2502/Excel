@@ -1,22 +1,18 @@
 import wx
 import wx.adv
-import pandas as pd
 from DataFun import *
-from datetime import datetime
 import docx
 from docx import *
+from wx.adv import CalendarCtrl, GenericCalendarCtrl, CalendarDateAttr
 
 class HelloFrame(wx.Frame):
     """
     A Frame that says Hello World
     """
     
-    PepsData =  pd.DataFrame(pd.read_csv("C:\\Users\\gsorensen\\Documents\\JS\\New folder\\MasterList.csv"))
-    FileV = "C:\\Users\\gsorensen\\Documents\\JS\\New folder"
-    PepsDataUpdated = GetVaildClients(PepsData)
-    ClientNames = GetNames(PepsDataUpdated)
-    now = datetime.now()
-    date_time = now.strftime("%m/%d/%Y")
+    ClientNames,date_time, FileV = OnStart()
+    DigCode = GetCode('Diagnosis Codes.csv')
+    TreatCode = GetCode('Treatment Codes.csv')
 
     
 
@@ -34,12 +30,17 @@ class HelloFrame(wx.Frame):
         
         # ensure the parent's __init__ is called
         super(HelloFrame, self).__init__(*args, **kw)
+        
+     
+
 
         # create a panel in the frame
         pnl = wx.Panel(self)
 
-        self.SetSize(600,400)
+        self.SetSize(600,750)
         font = wx.Font(10, wx.SCRIPT, wx.NORMAL, wx.BOLD)
+
+        fontforCode = wx.Font(7, wx.SCRIPT, wx.NORMAL, wx.BOLD)
         # put some text with a larger bold font on it
         st = wx.StaticText(pnl, label="Notes")
         
@@ -63,32 +64,154 @@ class HelloFrame(wx.Frame):
 
 
         self.Send = wx.Button(pnl,pos=(450, 250),size = (100,40),label = 'Run')
+        
         self.T1 = wx.TextCtrl(pnl,pos=(2, 65),size = (575,160),style = wx.TE_MULTILINE)
-        self.patients = wx.Choice(pnl,choices = self.ClientNames ,pos=(250, 250),size = (155,40))
-        self.patients.SetFont(font)
-        #self.cal = wx.adv.CalendarCtrl(pnl,pos=(0, 170) , date = wx.DateTime.Now())
-        #self.cal.Bind(wx.adv.EVT_CALENDAR, self.OnDate)
+ 
+        
+        
+
+       
         self.T2 = wx.StaticText(pnl, -1, self.date_time, (510, 45))
         self.T3 = wx.StaticText(pnl, -1, "Current Date", (500, 25))
+
+        self.patients = wx.Choice(pnl,choices = self.ClientNames ,pos=(0, 250),size = (155,40))
+        self.Dig = wx.Choice(pnl,choices = self.DigCode,pos=(0, 290) )
+        self.Treat = wx.Choice(pnl,choices = self.TreatCode,pos=(0, 330) )
+
+        #,size = (225,40)
+
+        self.patients.SetFont(font)
+        
+        self.cal = wx.adv.CalendarCtrl(pnl,pos=(0, 355) , date = wx.DateTime.Now())
+        self.cal.Hide()
+        
+        
+        self.T2 = wx.StaticText(pnl, -1, self.date_time, (510, 45))
+        self.T3 = wx.StaticText(pnl, -1, "Current Date", (500, 25))
+
+        self.SessValue = wx.StaticText(pnl, -1, self.date_time, (310, 45))
+        self.SessButton = wx.Button(pnl, -1, size = (100,40), pos =(310, 250),label = 'Session Calander')
+        self.SessDate = wx.StaticText(pnl, -1, "Session Date", (300, 25))
+        
+        
         
         self.T3.SetFont(font)
+        self.SessDate.SetFont(font)
+
         self.Bind(wx.EVT_BUTTON, self.SendText, self.Send)
+        
+        self.Bind(wx.EVT_BUTTON, self.GetSessDate, self.SessButton)
+       
 
     def OnDate(self,event):
-        print(self.cal.GetDate())
+
+
+        datePicker = self.cal.GetDate()
+        #sel_date = datePicker.GetValue()
+        #y = datePicker.GetYear()
+        #m = datePicker.getMonth()
+        #d = datePicker.GetDay()
+        dateFinal = datePicker.Format("%m/%d/%Y")
+
+        #dateFinal = wx.DateTimeFromDMY(d,m,y)
+        #datePicker.FormatISODate()
+        dateFinal = str(dateFinal)
+
+        self.SessValue.SetLabel(dateFinal) 
+
+
+        
+        
+        self.cal.Hide()
 
     def SendText (self,event):
         Noted = self.T1.GetValue()
         patient = self.patients.GetStringSelection()
         NoteDate = self.date_time
         Path = self.FileV
+        Treat = self.Treat.GetStringSelection()
+        Dig = self.Dig.GetStringSelection()
+        SessDate = self.SessValue.GetLabelText()
         
-        SendForNotes(Noted,patient,NoteDate,Path)
+        SendForNotes(Noted,patient,NoteDate,Path,Treat,Dig,SessDate)
 
         wx.MessageBox("A note has been entered for " + patient + ".")
         self.T1.SetValue( '\n\n')
+    def GetSessDate(self,event):
+        self.cal.Show()
+        
+        
+        self.hideSessDate(wx.adv.EVT_CALENDAR)
+
+
+        #self.cal.Bind(wx.adv.EVT_CALENDAR, self.OnDate)
+        #self.cal.Hide()
         
 
+    def hideSessDate(self, event):
+        self.cal.Bind(wx.adv.EVT_CALENDAR, self.OnDate)
+        #self.cal.Hide()
+
+
+
+    # def InitUI(self):
+
+    #     pnl = wx.Panel(self)
+        
+
+    #     font = wx.SystemSettings.GetFont(wx.SYS_SYSTEM_FONT)
+
+    #     font.SetPointSize(7)
+
+      
+
+    #     # self.DigCodes = wx.Choice(pnl,choices = self.DigCode ,pos=(0, 250),size = (190,40))
+    #     # self.DigCodes.SetFont(font)
+
+
+
+    #     vbox = wx.BoxSizer(wx.HORIZONTAL)
+    #     pnl.SetBackgroundColour('#4f5049')
+
+    #     hbox1 = wx.BoxSizer(wx.VERTICAL)
+    #     st1 = wx.Choice(pnl,choices = self.ClientNames)
+    #     st1.SetFont(font)
+    #     hbox1.Add(st1, 1,border=10, flag=wx.BOTTOM)
+
+       
+        
+    #     vbox.Add(hbox1, flag=wx.BOTTOM, border=10)
+
+    #     vbox.Add((0, 25))
+
+    #     hbox2 = wx.BoxSizer(wx.VERTICAL)
+    #     st2 = wx.Choice(pnl,choices = self.DigCode)
+    #     st2.SetFont(font)
+    #     hbox2.Add(st2, 1, flag=wx.BOTTOM )
+    #     vbox.Add(hbox2, flag=wx.LEFT | wx.TOP, border=10)
+
+    #     vbox.Add((35, 25))
+
+
+    #     hbox3 = wx.BoxSizer(wx.VERTICAL)
+    #     st3 = wx.Choice(pnl,choices = self.TreatCode)
+    #     st3.SetFont(font)
+    #     hbox3.Add(st3, 1, flag=wx.BOTTOM )
+    #     vbox.Add(hbox1, flag=wx.BOTTOM, border=10)
+
+    #     vbox.Add((55, 25))
+
+    #     Texter = wx.BoxSizer(wx.HORIZONTAL)
+
+    #     T1 = wx.TextCtrl(pnl,size = (575,160),style = wx.TE_MULTILINE)
+
+    #     Texter.Add(T1, 1, flag=wx.CENTER )
+    #     vbox.Add((60,125))
+
+        
+    #     #vbox.SetSizeHints(self)
+        
+    #     pnl.SetSizer(vbox)
 
         
     def makeMenuBar(self):
